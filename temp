@@ -1,0 +1,1 @@
+journalctl _SYSTEMD_INVOCATION_ID=`systemctl show -p InvocationID --value test.service` -o json-pretty --no-pager | jq '.MESSAGE'
