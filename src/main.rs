@@ -4,6 +4,8 @@ use std::fs;
 use clap::{App, Arg, SubCommand};
 use reqwest::header::{HeaderMap, ACCEPT, CONTENT_TYPE};
 use serde::{Serialize, Deserialize};
+use serde_json::json;
+
 
 const BASE_URL: &str = "http://localhost";
 
@@ -54,6 +56,10 @@ fn main() {
             "deviceidentifier": device_identifier.trim(),
         });
 
+        // Serialize the JSON data into a string
+        let request_body_str = serde_json::to_string(&request_body)
+            .expect("Failed to serialize request body to JSON");
+
         // Create headers with required content-type and accept
         let mut headers = HeaderMap::new();
         headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
@@ -64,23 +70,18 @@ fn main() {
         let client = reqwest::blocking::Client::new();
         let response = client.post(&url)
             .headers(headers)
-            .json(&request_body)
-            .send();
+            .body(request_body_str) // Set the serialized JSON data as the request body
+            .send()
+            .expect("Failed to send request");
 
-        // Process the response
-        match response {
-            Ok(resp) => {
-                if resp.status().is_success() {
-                    let api_response: ApiResponse = resp.json().unwrap();
-                    println!("Response: {:?}", api_response);
-                } else {
-                    let api_error: ApiError = resp.json().unwrap();
-                    println!("Error: {:?}", api_error.message);
-                }
-            }
-            Err(e) => {
-                println!("Request failed: {:?}", e);
-            }
+        // Check if the response is successful
+        if response.status().is_success() {
+            let api_response: ApiResponse = response.json().expect("Failed to deserialize response");
+            println!("Response: {:?}", api_response);
+        } else {
+            let text = response.text().expect("Failed to read response text");
+            let api_error: ApiError = serde_json::from_str(&text).expect("Failed to deserialize error response");
+            println!("Error: {:?}", api_error.message);
         }
     }
 }
