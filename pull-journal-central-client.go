@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const baseURL = "http://localhost"
 const configdir = ".pull-journal-central-client"
 const conttype = "application/json"
 
@@ -34,12 +33,13 @@ func main() {
 	var rootCmd = &cobra.Command{Use: "app"}
 	var organisationID, name, organisationPassword string
 	var class, source, service string
+	var baseURL string
 
 	registerCmd := &cobra.Command{
 		Use:   "register",
 		Short: "Register a device",
 		Run: func(cmd *cobra.Command, args []string) {
-			registerDevice(organisationID, name, organisationPassword)
+			registerDevice(organisationID, name, organisationPassword, baseURL)
 		},
 	}
 
@@ -47,20 +47,30 @@ func main() {
 		Use:   "log",
 		Short: "Create a log entry",
 		Run: func(cmd *cobra.Command, args []string) {
-			createLogEntry(class, source, service)
+			createLogEntry(class, source, service, baseURL)
 		},
 	}
 
 	rootCmd.AddCommand(registerCmd)
 	rootCmd.AddCommand(logCmd)
 
+	registerCmd.Flags().StringVar(&baseURL, "baseURL", "", "base url of the pjc installation")
 	registerCmd.Flags().StringVar(&organisationID, "organisationID", "", "Organisation ID")
 	registerCmd.Flags().StringVar(&name, "name", "", "Name")
 	registerCmd.Flags().StringVar(&organisationPassword, "organisationpassword", "", "Organisation Password")
+	registerCmd.MarkFlagRequired("baseURL")
+	registerCmd.MarkFlagRequired("organisationID")
+	registerCmd.MarkFlagRequired("name")
+	registerCmd.MarkFlagRequired("organisationpassword")
 
+	logCmd.Flags().StringVar(&baseURL, "baseURL", "", "base url of the pjc installation")
 	logCmd.Flags().StringVar(&class, "class", "", "class of the Log Entry")
 	logCmd.Flags().StringVar(&source, "source", "", "source of the log Entry")
 	logCmd.Flags().StringVar(&service, "service", "", "service name")
+	logCmd.MarkFlagRequired("baseURL")
+	logCmd.MarkFlagRequired("class")
+	logCmd.MarkFlagRequired("source")
+	logCmd.MarkFlagRequired("service")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -88,7 +98,7 @@ func getConfigDir() string {
 	return fulcfgDir
 }
 
-func registerDevice(organisationID, name, organisationPassword string) {
+func registerDevice(organisationID, name, organisationPassword, baseURL string) {
 	// Read device identifier from the file
 	deviceIdentifier, err := ioutil.ReadFile("/etc/machine-id")
 	if err != nil {
@@ -152,7 +162,7 @@ func registerDevice(organisationID, name, organisationPassword string) {
 	}
 }
 
-func createLogEntry(class, source, service string) {
+func createLogEntry(class, source, service, baseURL string) {
 
 	// Create the URL
 	url := fmt.Sprintf("%s/api/logEntries/create", baseURL)
