@@ -45,13 +45,17 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         tag_prefix: ''
-        tag_template: 'yyyy.mm.dd-i'
+        tag_template: 'yyyy.mm.dd.i'
+
+    - name: generate debian release tag
+      run:  echo "DEBIANVER=$(echo ${{ steps.generate_release_tag.outputs.next_release_tag }} | sed 's/\(.*\)\./\1-/' )" >> $GITHUB_ENV
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.generate_release_tag.outputs.next_release_tag }}
         name: Release ${{ steps.generate_release_tag.outputs.next_release_tag }}
+
 
     - uses: wangyoucao577/go-release-action@v1
       with:
@@ -68,16 +72,16 @@ jobs:
     - name: debian packaging
       run: cp -rf DEBIAN/* build/packageroot/   
     - name: debian packaging
-      run: sed -i 's|%%VERSION%%|${{ steps.generate_release_tag.outputs.next_release_tag }}|g' build/packageroot/control
+      run: sed -i 's|%%VERSION%%|${{ env.DEBIANVER }}|g' build/packageroot/control
     - name: debian packaging
       run: cp pull-journal-central-client build/packageroot/usr/bin/
     - name: debian packaging
-      run: cd build && dpkg-deb -b packageroot pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+      run: cd build && dpkg-deb -b packageroot pull-journal-central-client_${{ env.DEBIANVER }}_amd64.deb
     - name: Release debian
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.generate_release_tag.outputs.next_release_tag }}
         name: Release ${{ steps.generate_release_tag.outputs.next_release_tag }}
-        files: pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+        files: pull-journal-central-client_${{ env.DEBIANVER }}_amd64.deb
     
 
