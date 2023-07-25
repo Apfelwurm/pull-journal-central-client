@@ -54,7 +54,7 @@ jobs:
         name: Release ${{ steps.generate_release_tag.outputs.next_release_tag }}
 
     - name: replace version
-      run: sed -i 's|%%VERSION%%|${{ steps.generate_release_tag.outputs.next_release_tag }}|g' pull-journal-central-client
+      run: sed -i 's|%%VERSION%%|${{ steps.generate_release_tag.outputs.next_release_tag }}|g' pull-journal-central-client.go
 
     - uses: wangyoucao577/go-release-action@v1
       with:
