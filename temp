@@ -1,1 +1,0 @@
-journalctl _SYSTEMD_INVOCATION_ID=`systemctl show -p InvocationID --value anydesk.service` -o json-pretty --no-pager | jq '.MESSAGE'

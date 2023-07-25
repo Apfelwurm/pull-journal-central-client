@@ -251,8 +251,17 @@ func executeServiceCommand(service string) (string, error) {
 
 	fmt.Println("invocid:", idoutput)
 
-	// Execute the "ls" command
-	cmd := exec.Command("journalctl", "_SYSTEMD_INVOCATION_ID="+string(strings.ReplaceAll(idoutput, "\n", "")), "--no-pager")
+	// Remove all spaces from idoutput
+	idoutput = strings.ReplaceAll(idoutput, " ", "")
+	idoutput = strings.ReplaceAll(idoutput, "\n", "")
+
+	// Check if idoutput is empty
+	if idoutput == "" {
+		return "", fmt.Errorf("invocid for requested service is empty")
+	}
+
+	// Get logs from Journal
+	cmd := exec.Command("journalctl", "_SYSTEMD_INVOCATION_ID="+string(idoutput), "--no-pager")
 
 	// Capture the command output
 	var stdout, stderr bytes.Buffer
