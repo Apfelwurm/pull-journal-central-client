@@ -1,0 +1,5 @@
+Package: pull-journal-central-client
+Version: %%VERSION%%
+Architecture: amd64
+Maintainer: Alexander Volz
+Description: pull-journal-central-client

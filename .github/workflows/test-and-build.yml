@@ -44,8 +44,8 @@ jobs:
       uses: amitsingh-007/next-release-tag@v4.1.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        tag_prefix: 'v'
-        tag_template: 'yyyy.mm.dd.i'
+        tag_prefix: ''
+        tag_template: 'yyyy.mm.dd-i'
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -62,6 +62,22 @@ jobs:
         goversion: ${{ matrix.go-version }}
         binary_name: "pull-journal-central-client"
         # extra_files: LICENSE README.md
-      
-      
+    
+    - name: debian packaging
+      run: mkdir -p build/packageroot/usr/bin
+    - name: debian packaging
+      run: cp -rf DEBIAN/* build/packageroot/   
+    - name: debian packaging
+      run: sed -i 's|%%VERSION%%|${{ steps.generate_release_tag.outputs.next_release_tag }}|g' build/packageroot/control
+    - name: debian packaging
+      run: cp pull-journal-central-client build/packageroot/usr/bin/
+    - name: debian packaging
+      run: cd build && dpkg-deb -b packageroot pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+    - name: Release debian
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.generate_release_tag.outputs.next_release_tag }}
+        name: Release ${{ steps.generate_release_tag.outputs.next_release_tag }}
+        files: pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+    
 
