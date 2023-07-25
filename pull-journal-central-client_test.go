@@ -129,7 +129,7 @@ func TestCreateLogEntry(t *testing.T) {
 	// Call the createLogEntry function with mock data
 	class := "someClass"
 	source := "someSource"
-	service := "networking.service"
+	service := "console-setup.service"
 	createLogEntry(class, source, service, baseURL)
 
 	// Add assertions to verify that the log entry was created successfully
