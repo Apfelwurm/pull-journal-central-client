@@ -56,7 +56,8 @@ jobs:
     - name: replace version
       run: sed -i 's|%%VERSION%%|${{ steps.generate_release_tag.outputs.next_release_tag }}|g' pull-journal-central-client.go
 
-    - uses: wangyoucao577/go-release-action@v1
+    - name: go build, show checksums and publish 
+      uses: wangyoucao577/go-release-action@v1
       with:
         release_tag: ${{ steps.generate_release_tag.outputs.next_release_tag }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -77,6 +78,12 @@ jobs:
       run: cp build-artifacts-*/pull-journal-central-client build/packageroot/usr/bin/
     - name: debian packaging
       run: cd build && dpkg-deb -b packageroot pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+    - name: debian packaging - show sha265 checksum
+      run: sha256sum build/pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+    - name: debian packaging - show md5 checksum
+      run: md5sum build/pull-journal-central-client_${{ steps.generate_release_tag.outputs.next_release_tag }}_amd64.deb
+
+            
     - name: Release debian
       uses: softprops/action-gh-release@v1
       with:
