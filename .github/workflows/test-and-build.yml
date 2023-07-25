@@ -71,15 +71,17 @@ jobs:
     - name: debian packaging - create directory
       run: mkdir -p build/packageroot/usr/bin
     - name: debian packaging - copy manifest
-      run: cp -rf DEBIAN/* build/packageroot/   
+      run: cp -rf DEBIAN build/packageroot/   
     - name: debian packaging - replace version
-      run: sed -i 's|%%VERSION%%|${{ env.DEBIANVER }}|g' build/packageroot/control
+      run: sed -i 's|%%VERSION%%|${{ env.DEBIANVER }}|g' build/packageroot/DEBIAN/control
     - name: debian packaging - copy pull-journal-central-client
       run: cp build-artifacts-*/pull-journal-central-client build/packageroot/usr/bin/
     - name: debg
       run: find
     - name: debian packaging
       run: cd build && dpkg-deb -b packageroot pull-journal-central-client_${{ env.DEBIANVER }}_amd64.deb
+    - name: debg
+      run: find
     - name: Release debian
       uses: softprops/action-gh-release@v1
       with:
