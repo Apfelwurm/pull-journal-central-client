@@ -30,7 +30,7 @@ type ApiError struct {
 }
 
 func main() {
-	var rootCmd = &cobra.Command{Use: "app"}
+	var rootCmd = &cobra.Command{Use: "pull-journal-central-client", Version: "%%VERSION%%"}
 	var organisationID, name, organisationPassword string
 	var class, source, service string
 	var baseURL string
