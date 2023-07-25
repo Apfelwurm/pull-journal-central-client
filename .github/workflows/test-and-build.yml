@@ -67,6 +67,8 @@ jobs:
         binary_name: "pull-journal-central-client"
         # extra_files: LICENSE README.md
     
+    - name: debg
+      run: find
     - name: debian packaging
       run: mkdir -p build/packageroot/usr/bin
     - name: debian packaging
