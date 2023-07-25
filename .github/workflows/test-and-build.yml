@@ -47,13 +47,11 @@ jobs:
         tag_prefix: 'v'
         tag_template: 'yyyy.mm.dd.i'
 
-    - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.generate_release_tag.outputs.next_release_tag }}
-        release_name: Release ${{ steps.generate_release_tag.outputs.next_release_tag }}
+        name: Release ${{ steps.generate_release_tag.outputs.next_release_tag }}
 
     - uses: wangyoucao577/go-release-action@v1
       with:
