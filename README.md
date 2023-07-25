@@ -6,8 +6,10 @@ This is the client command line tool for [pull-journal-central](https://github.c
 ## Installation
 
 Download the latest release [here](https://github.com/Apfelwurm/pull-journal-central-client/releases/latest).
-You can find either a deb package which can be installed by  `dpkg -i pull-journal-central-client_*_amd64.deb` or a tar.gz file that can be unpacked using `tar xvf pull-journal-central-client-*-linux-amd64.tar.gz`
 
+You can find a deb package there which can be installed by  `dpkg -i pull-journal-central-client_*_amd64.deb` on debian.
+
+Alternativeley there is also a tar.gz file that can be unpacked using `tar xvf pull-journal-central-client-*-linux-amd64.tar.gz`
 
 ## Command Usage
 
@@ -60,3 +62,19 @@ Flags:
       --service string   service name
       --source string    source of the log Entry
 ```
+
+
+## Building it yourself
+
+* Clone the repository
+* install golang
+
+Run `go run pull-journal-central-client.go WHATEVER` to run it directly with go, or `go build -o pull-journal-central-client` to build it.
+
+## Testing
+
+* Clone the repository
+* install golang
+
+Run `go test` to run it.
+
