@@ -67,8 +67,7 @@ jobs:
         binary_name: "pull-journal-central-client"
         # extra_files: LICENSE README.md
     
-    - name: debg
-      run: find
+
     - name: debian packaging - create directory
       run: mkdir -p build/packageroot/usr/bin
     - name: debian packaging - copy manifest
@@ -77,6 +76,8 @@ jobs:
       run: sed -i 's|%%VERSION%%|${{ env.DEBIANVER }}|g' build/packageroot/control
     - name: debian packaging - copy pull-journal-central-client
       run: cp build-artifacts-*/pull-journal-central-client build/packageroot/usr/bin/
+    - name: debg
+      run: find
     - name: debian packaging
       run: cd build && dpkg-deb -b packageroot pull-journal-central-client_${{ env.DEBIANVER }}_amd64.deb
     - name: Release debian
