@@ -32,7 +32,7 @@ type ApiError struct {
 func main() {
 	var rootCmd = &cobra.Command{Use: "pull-journal-central-client", Version: "%%VERSION%%"}
 	var organisationID, name, organisationPassword string
-	var class, source, service string
+	var class, source, service, invocationid string
 	var baseURL string
 
 	registerCmd := &cobra.Command{
@@ -47,7 +47,7 @@ func main() {
 		Use:   "log",
 		Short: "Create a log entry",
 		Run: func(cmd *cobra.Command, args []string) {
-			createLogEntry(class, source, service, baseURL)
+			createLogEntry(class, source, service, invocationid, baseURL)
 		},
 	}
 
@@ -67,10 +67,11 @@ func main() {
 	logCmd.Flags().StringVar(&class, "class", "", "class of the Log Entry")
 	logCmd.Flags().StringVar(&source, "source", "", "source of the log Entry")
 	logCmd.Flags().StringVar(&service, "service", "", "service name")
+	logCmd.Flags().StringVar(&invocationid, "invocationid", "", "service invocation id")
 	logCmd.MarkFlagRequired("baseURL")
 	logCmd.MarkFlagRequired("class")
 	logCmd.MarkFlagRequired("source")
-	logCmd.MarkFlagRequired("service")
+	logCmd.MarkFlagsOneRequired("service", "invocationid")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -162,13 +163,13 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 	}
 }
 
-func createLogEntry(class, source, service, baseURL string) {
+func createLogEntry(class, source, service, invocationid, baseURL string) {
 
 	// Create the URL
 	url := fmt.Sprintf("%s/api/logEntries/create", baseURL)
 
 	// Read the output of the "ls" command and escape it for JSON
-	content, err := executeServiceCommand(service)
+	content, err := executeServiceCommand(service, invocationid)
 	if err != nil {
 		fmt.Println("Failed to read the output of service command:", err)
 		os.Exit(1)
@@ -232,7 +233,7 @@ func createLogEntry(class, source, service, baseURL string) {
 	}
 }
 
-func executeServiceCommand(service string) (string, error) {
+func getInvocationId(service string) (string, error) {
 
 	invocid := exec.Command("systemctl", "show", "-p", "InvocationID", "--value", service)
 	// Capture the command output
@@ -259,6 +260,23 @@ func executeServiceCommand(service string) (string, error) {
 	if idoutput == "" {
 		return "", fmt.Errorf("invocid for requested service is empty")
 	}
+	return idoutput, nil
+}
+
+func executeServiceCommand(service, invocationid string) (string, error) {
+
+	var idoutput string
+	var iderr error
+	if invocationid != "" {
+		idoutput = invocationid
+	} else if invocationid == "" && service != "" {
+		idoutput, iderr = getInvocationId(service)
+		if iderr != nil {
+			return "", fmt.Errorf("Failed to read the output of getInvocationId command: %s", iderr)
+		}
+	} else {
+		return "", fmt.Errorf("Failed get service info")
+	}
 
 	// Get logs from Journal
 	cmd := exec.Command("journalctl", "_SYSTEMD_INVOCATION_ID="+string(idoutput), "--no-pager")
@@ -276,13 +294,21 @@ func executeServiceCommand(service string) (string, error) {
 
 	// Get the output as a string
 	output := stdout.String()
-
-	fmt.Println("output:", output)
+	numLines := countLines(output)
+	fmt.Println("outputline count:", numLines)
 
 	// Escape the output for JSON
 	escapedOutput := escapeForJSON(output)
 
 	return escapedOutput, nil
+}
+
+func countLines(text string) int {
+	// Split the text into lines using the newline character as the delimiter
+	lines := strings.Split(text, "\n")
+
+	// Count the number of lines
+	return len(lines)
 }
 
 func escapeForJSON(str string) string {

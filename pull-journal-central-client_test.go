@@ -130,7 +130,8 @@ func TestCreateLogEntry(t *testing.T) {
 	class := "someClass"
 	source := "someSource"
 	service := "console-setup.service"
-	createLogEntry(class, source, service, baseURL)
+	invocationid := ""
+	createLogEntry(class, source, service, invocationid, baseURL)
 
 	// Add assertions to verify that the log entry was created successfully
 	// You can add more sophisticated checks based on the actual response expected in your app.
