@@ -27,6 +27,9 @@ Flags:
   -h, --help      help for pull-journal-central-client
   -v, --version   version for pull-journal-central-client
 
+Global Flags:
+      --debug   Enable debug mode
+
 Use "pull-journal-central-client [command] --help" for more information about a command.
 ```
 
