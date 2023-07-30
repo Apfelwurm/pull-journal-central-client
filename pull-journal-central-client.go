@@ -146,9 +146,10 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
 	if debug {
 		// Log the entire response
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 		fmt.Println("Response Status code: ", resp.StatusCode)
 		fmt.Println("Response: ", bodyString)
@@ -157,7 +158,7 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 	// Check if the response is successful
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		var apiRegisterResponse ApiRegisterResponse
-		err := json.NewDecoder(resp.Body).Decode(&apiRegisterResponse)
+		err := json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(&apiRegisterResponse)
 		if err != nil {
 			fmt.Println("Failed to decode JSON response:", err)
 			os.Exit(1)
@@ -177,7 +178,7 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 
 	} else {
 		var apiError ApiError
-		err := json.NewDecoder(resp.Body).Decode(&apiError)
+		err := json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(&apiError)
 		if err != nil {
 			fmt.Println("Failed to decode JSON error response:", err)
 			os.Exit(1)
@@ -242,9 +243,10 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
 	if debug {
 		// Log the entire response
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 		fmt.Println("Response Status code: ", resp.StatusCode)
 		fmt.Println("Response: ", bodyString)
@@ -253,7 +255,7 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 	// Check if the response is successful
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		var apiLogResponse ApiLogResponse
-		err := json.NewDecoder(resp.Body).Decode(&apiLogResponse)
+		err := json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(&apiLogResponse)
 		if err != nil {
 			fmt.Println("Failed to decode JSON response:", err)
 			os.Exit(1)
@@ -267,7 +269,7 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 		fmt.Println("Log entry created successfully")
 	} else {
 		var apiError ApiError
-		err := json.NewDecoder(resp.Body).Decode(&apiError)
+		err := json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(&apiError)
 		if err != nil {
 			fmt.Println("Failed to decode JSON error response:", err)
 			os.Exit(1)
