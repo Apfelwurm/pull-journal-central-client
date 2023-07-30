@@ -145,6 +145,7 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 		// Log the entire response
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
+		fmt.Println("Response Status code: ", resp.StatusCode)
 		fmt.Println("Response: ", bodyString)
 	}
 
@@ -240,6 +241,7 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 		// Log the entire response
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
+		fmt.Println("Response Status code: ", resp.StatusCode)
 		fmt.Println("Response: ", bodyString)
 	}
 

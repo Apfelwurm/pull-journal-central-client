@@ -116,7 +116,7 @@ func TestCreateLogEntry(t *testing.T) {
 	// Create a mock server
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Respond with a successful log creation JSON response
-		responseJSON := `{"message": "Log entry created successfully"}`
+		responseJSON := `{"success": true, "data": {"log_id":12}}`
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(responseJSON))
