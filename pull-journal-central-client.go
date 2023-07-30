@@ -18,6 +18,8 @@ import (
 const configdir = ".pull-journal-central-client"
 const conttype = "application/json"
 
+var debug bool
+
 type ApiResponse struct {
 	Success bool   `json:"success"`
 	Token   string `json:"token"`
@@ -30,7 +32,15 @@ type ApiError struct {
 }
 
 func main() {
-	var rootCmd = &cobra.Command{Use: "pull-journal-central-client", Version: "%%VERSION%%"}
+	var rootCmd = &cobra.Command{
+		Use:     "pull-journal-central-client",
+		Version: "%%VERSION%%",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			debug = cmd.Flag("debug").Value.String() == "true"
+		},
+	}
+	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug mode")
+
 	var organisationID, name, organisationPassword string
 	var class, source, service, invocationid string
 	var baseURL string
@@ -131,6 +141,13 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 	}
 	defer resp.Body.Close()
 
+	if debug {
+		// Log the entire response
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		fmt.Println("Response: ", bodyString)
+	}
+
 	// Check if the response is successful
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		var apiResponse ApiResponse
@@ -218,6 +235,13 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	if debug {
+		// Log the entire response
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		fmt.Println("Response: ", bodyString)
+	}
 
 	// Check the response status code
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
