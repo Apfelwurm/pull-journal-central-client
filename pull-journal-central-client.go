@@ -20,12 +20,17 @@ const conttype = "application/json"
 
 var debug bool
 
-type ApiResponse struct {
+type ApiRegisterResponse struct {
 	Success bool   `json:"success"`
 	Token   string `json:"token"`
 	Message string `json:"message"`
 }
-
+type ApiLogResponse struct {
+	Success bool `json:"success"`
+	Data    struct {
+		LogID int `json:"log_id"`
+	} `json:"data"`
+}
 type ApiError struct {
 	Message string              `json:"message"`
 	Errors  map[string][]string `json:"errors"`
@@ -151,15 +156,15 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 
 	// Check if the response is successful
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		var apiResponse ApiResponse
-		err := json.NewDecoder(resp.Body).Decode(&apiResponse)
+		var apiRegisterResponse ApiRegisterResponse
+		err := json.NewDecoder(resp.Body).Decode(&apiRegisterResponse)
 		if err != nil {
 			fmt.Println("Failed to decode JSON response:", err)
 			os.Exit(1)
 		}
 
 		// Write the token to the file in the home directory
-		authToken := []byte(apiResponse.Token)
+		authToken := []byte(apiRegisterResponse.Token)
 
 		filePath := filepath.Join(getConfigDir(), "authorisation")
 
@@ -245,8 +250,20 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 		fmt.Println("Response: ", bodyString)
 	}
 
-	// Check the response status code
+	// Check if the response is successful
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		var apiLogResponse ApiLogResponse
+		err := json.NewDecoder(resp.Body).Decode(&apiLogResponse)
+		if err != nil {
+			fmt.Println("Failed to decode JSON response:", err)
+			os.Exit(1)
+		}
+
+		// Check for successful creation
+		if !apiLogResponse.Success {
+			fmt.Println("Log entry creation failed, Server indicated failure: 'success' field in response was false")
+			os.Exit(1)
+		}
 		fmt.Println("Log entry created successfully")
 	} else {
 		var apiError ApiError
