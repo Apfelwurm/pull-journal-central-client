@@ -184,6 +184,11 @@ func registerDevice(organisationID, name, organisationPassword, baseURL string) 
 			os.Exit(1)
 		}
 		fmt.Println("Error:", apiError.Message)
+		for key, values := range apiError.Errors {
+			for _, value := range values {
+				fmt.Printf("%s: %s\n", key, value)
+			}
+		}
 	}
 }
 
@@ -275,6 +280,12 @@ func createLogEntry(class, source, service, invocationid, baseURL string) {
 			os.Exit(1)
 		}
 		fmt.Println("Error:", apiError.Message)
+		for key, values := range apiError.Errors {
+			for _, value := range values {
+				fmt.Printf("%s: %s\n", key, value)
+			}
+		}
+
 	}
 }
 
