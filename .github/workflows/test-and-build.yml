@@ -5,6 +5,7 @@ on:
     paths:
       - '**'
       - '!README.md'
+      - '!renovate.json'
 
 permissions:
     contents: write
